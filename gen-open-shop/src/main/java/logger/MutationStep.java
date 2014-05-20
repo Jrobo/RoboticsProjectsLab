@@ -7,12 +7,13 @@ import org.javatuples.Pair;
 
 import core.Chromosome;
 
-public class MutationStep {
+public class MutationStep extends Step {
 	
 	List<Pair<Chromosome, Integer>> mutation;
 	
 	public MutationStep() {
 		mutation = new ArrayList<Pair<Chromosome,Integer>>();
+		type = Type.MUTATION;
 	}
 	
 	public void addMutation(Chromosome c, int pos) {

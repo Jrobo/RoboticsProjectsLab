@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import logger.StepLogger;
+
 public class Population implements Cloneable {
 
 	private int size;
@@ -21,6 +23,8 @@ public class Population implements Cloneable {
 		this.size = size;
 		this.oneLength = oneLength;
 		individuals = generatePopulation(size, oneLength);
+		StepLogger.start();
+		StepLogger.logPopulationStep(this);
 	}
 
 	public Population(List<Chromosome> individuals) {
@@ -62,6 +66,8 @@ public class Population implements Cloneable {
 		List<Chromosome> newPopulation = uniformCrossover();
 		swapMutation(newPopulation);
 		eliteSelection(newPopulation);
+		StepLogger.next();
+		StepLogger.logPopulationStep(this);
 	}
 
 	private List<Chromosome> uniformCrossover() {
@@ -72,7 +78,10 @@ public class Population implements Cloneable {
 					wheel.getParent(), getMask(oneLength)));
 		}
 		if (newPopulation.size() < size) {
-			newPopulation.add(wheel.getParent());
+			Chromosome alone = wheel.getParent();
+			newPopulation.add(alone);
+			StepLogger.logCrossoverAlone(alone);
+
 		}
 		return newPopulation;
 	}
@@ -87,6 +96,7 @@ public class Population implements Cloneable {
 	}
 
 	private List<Chromosome> crossover(Chromosome p1, Chromosome p2, int mask) {
+		StepLogger.logCrossoverParents(p1, p2);
 		List<Chromosome> result = new ArrayList<Chromosome>();
 		if (p1.equals(p2)) {
 			result.add(p1);
@@ -108,6 +118,7 @@ public class Population implements Cloneable {
 		}
 		result.add(new Chromosome(c1));
 		result.add(new Chromosome(c2));
+		StepLogger.logCrossoverChilds(new Chromosome(c1), new Chromosome(c2));
 		return result;
 	}
 
@@ -115,6 +126,7 @@ public class Population implements Cloneable {
 		for (Chromosome chromosome : population) {
 			if (random.nextDouble() < mutaionProbability) {
 				int index = random.nextInt(oneLength);
+				StepLogger.logMutation(chromosome, index);
 				int g1 = index == 0 ? oneLength - 1 : index - 1;
 				int g2 = index == oneLength - 1 ? 0 : index + 1;
 				chromosome.swapGenes(g1, g2);
@@ -132,8 +144,10 @@ public class Population implements Cloneable {
 			}
 		});
 		while (individuals.size() > size) {
+			StepLogger.logSelectionFailed(individuals.get(size));
 			individuals.remove(size);
 		}
+		StepLogger.logSelectionPassed(individuals);
 	}
 
 	public Population clone() {

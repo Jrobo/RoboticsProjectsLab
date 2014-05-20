@@ -25,8 +25,12 @@ import javax.swing.table.TableModel;
 public class Application extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-
+	
+	
+	JLabel navLabel;
 	private JTable table;
+	
+	private JLabel img;
 
 	/*
 	 * Need to set Problem to Schedule Manager Need to set new population to
@@ -35,15 +39,82 @@ public class Application extends JFrame {
 
 	public Application() {
 		setTitle("Genetic Algorithm for Open-Shop Scheduling");
-		// setSize(size);
-		// setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 
-		getContentPane().add(createSettingPanel());
+		getContentPane().add(createSettingPanel(), BorderLayout.WEST);
+		getContentPane().add(createViewPanel(),BorderLayout.CENTER);
 
 		pack();
 		setVisible(true);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+	}
+	
+	private JPanel createViewPanel() {
+		JPanel viewPanel = new JPanel();
+		viewPanel.setLayout(new BorderLayout());
+		
+		viewPanel.add(createImage(), BorderLayout.CENTER);
+		viewPanel.add(createNavPanel(), BorderLayout.SOUTH);
+		
+		return viewPanel;
+	}
+	
+	private JPanel createImage() {
+		JPanel imagePanel = new JPanel();
+		
+		img = new JLabel();
+		imagePanel.add(img, BorderLayout.CENTER);
+		img.setIcon(ViewManager.getView());
+		
+		return imagePanel;
+	}
+	
+	private JPanel createNavPanel() {
+		JPanel navPanel = new JPanel();
+		
+		navPanel.setLayout(new FlowLayout());
+		
+		navLabel = new JLabel();
+		
+		final JButton left = new JButton("Prev");
+		final JButton right = new JButton("Next");
+		ActionListener nav= new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == left)
+					ViewManager.prevStep();
+				else
+					ViewManager.nextStep();
+				if (ViewManager.isFirst())
+					left.setEnabled(false);
+				else
+					left.setEnabled(true);
+				if (ViewManager.isLast())
+					right.setEnabled(false);
+				else 
+					right.setEnabled(true);
+				
+				String generation = "Generation " + ViewManager.getIterationIndex();
+				String step = ViewManager.getCurrent().getType().name(); 
+				navLabel = new JLabel();
+				if (ViewManager.getIterationIndex() > 0) {
+					navLabel.setText(generation + ": " + step);
+				}
+			}
+		};
+		
+		left.setEnabled(false);
+		right.setEnabled(false);
+		left.addActionListener(nav);
+		right.addActionListener(nav);
+		
+		navPanel.add(left);
+		navPanel.add(navLabel);
+		navPanel.add(right);
+		
+		return navPanel;
 	}
 
 	private JPanel createSettingPanel() {
@@ -129,6 +200,15 @@ public class Application extends JFrame {
 		subPanel.setLayout(new FlowLayout());
 		subPanel.add(label);
 		subPanel.add(text);
+		
+		label = new JLabel("Generations: ");
+		text = new JTextField();
+		text.setPreferredSize(new Dimension(30, 25));
+		JPanel subPanel1 = new JPanel();
+
+		subPanel1.setLayout(new FlowLayout());
+		subPanel1.add(label);
+		subPanel1.add(text);
 
 		JButton start = new JButton("Start Evolution!");
 		start.addActionListener(new ActionListener() {
@@ -142,6 +222,7 @@ public class Application extends JFrame {
 
 		bottomPanel.add(addRow);
 		bottomPanel.add(subPanel);
+		bottomPanel.add(subPanel1);
 		bottomPanel.add(start);
 		bottomPanel.setVisible(true);
 		return bottomPanel;

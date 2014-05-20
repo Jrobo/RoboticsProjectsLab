@@ -8,6 +8,7 @@ public class PopulationStep extends Step {
 	
 	public PopulationStep(Population population) {
 		this.population = population.clone();
+		type = Type.POPULATION;
 	}
 	
 }
