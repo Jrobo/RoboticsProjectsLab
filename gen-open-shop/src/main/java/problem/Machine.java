@@ -1,6 +1,7 @@
 package problem;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by Tatiyana Domanova on 5/20/14.
@@ -14,10 +15,19 @@ public class Machine {
 
     public Machine(int index) {
         this.index = index;
+        schedule = new TreeMap<Integer, Job>();
     }
 
     public int getTime() {
         return time;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public Map<Integer, Job> getSchedule() {
+        return schedule;
     }
 
     public void addJob(Job job) {
@@ -28,7 +38,7 @@ public class Machine {
         int endTime = 0;
         for (int startTime: schedule.keySet()) {
             if ((startTime - endTime) > length) {
-                int time = job.findGap(startTime,endTime,length);
+                int time = job.findGap(endTime,startTime,length);
                 if (time >= 0) {
                     schedule.put(time, job);
                     job.processOperation(index,time);

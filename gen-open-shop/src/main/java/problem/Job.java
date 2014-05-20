@@ -34,6 +34,8 @@ public class Job {
     }
 
     public int findGap(int startTime, int endTime, int length) {
+        if (endTime <= startTime)
+            return -1;
         boolean buf[] = new boolean[endTime - startTime];
         Arrays.fill(buf, true);
         for (int left : processed.keySet()) {
