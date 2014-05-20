@@ -67,7 +67,7 @@ public class Population {
 		return newPopulation;
 	}
 
-	/* TODO: test! */
+
 	private int getMask(int length) {
 		int mask = 0;
 		for (int i = 0; i < length; i++) {
@@ -113,7 +113,7 @@ public class Population {
 		}
 	}
 
-	/* TODO: test*/
+
 	private void eliteSelection(List<Chromosome> newPopulation) {
 		individuals.addAll(newPopulation);
 		Collections.sort(individuals, new Comparator<Chromosome>() {
