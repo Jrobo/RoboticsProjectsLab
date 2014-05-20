@@ -1,16 +1,17 @@
 package core;
 
-import problem.ScheduleManager;
-
+import java.util.ArrayList;
 import java.util.List;
 
-public class Chromosome {
+import problem.ScheduleManager;
+
+public class Chromosome implements Cloneable {
 	
 	private List<Integer> genom;	
 	private Integer value = null;
 
 	public Chromosome(List<Integer> genom) {
-		this.genom = genom;
+		this.genom = new ArrayList<Integer>(genom);
 	}
 
     public List<Integer> getGenom() {
@@ -40,5 +41,16 @@ public class Chromosome {
 
     public void setValue(Integer value) {
         this.value = value;
+    }
+    
+    public boolean equals(Object o) {
+    	if (o instanceof Chromosome) {
+    		return genom.equals(((Chromosome)o).genom);
+    	}
+    	return false;
+    }
+    
+    public Chromosome clone() {
+    	return new Chromosome(getGenom());
     }
 }

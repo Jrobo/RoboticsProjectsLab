@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-public class Population {
+public class Population implements Cloneable {
 
 	private int size;
 	private List<Chromosome> individuals;
@@ -21,6 +21,16 @@ public class Population {
 		this.size = size;
 		this.oneLength = oneLength;
 		individuals = generatePopulation(size, oneLength);
+	}
+
+	public Population(List<Chromosome> individuals) {
+		this.individuals = new ArrayList<Chromosome>(individuals);
+		this.size = individuals.size();
+		if (this.size > 0) {
+			this.oneLength = individuals.get(0).getLength();
+		} else {
+			this.oneLength = 0;
+		}
 	}
 
 	public int getOneLength() {
@@ -47,7 +57,7 @@ public class Population {
 		}
 		return result;
 	}
-	
+
 	public void iterate() {
 		List<Chromosome> newPopulation = uniformCrossover();
 		swapMutation(newPopulation);
@@ -66,7 +76,6 @@ public class Population {
 		}
 		return newPopulation;
 	}
-
 
 	private int getMask(int length) {
 		int mask = 0;
@@ -113,7 +122,6 @@ public class Population {
 		}
 	}
 
-
 	private void eliteSelection(List<Chromosome> newPopulation) {
 		individuals.addAll(newPopulation);
 		Collections.sort(individuals, new Comparator<Chromosome>() {
@@ -126,6 +134,10 @@ public class Population {
 		while (individuals.size() > size) {
 			individuals.remove(size);
 		}
+	}
+
+	public Population clone() {
+		return new Population(individuals);
 	}
 
 }
