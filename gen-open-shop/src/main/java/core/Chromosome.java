@@ -8,13 +8,16 @@ public class Chromosome {
 	
 	private List<Integer> genom;	
 	private Integer value = null;
-	private Integer hybridValue = null;
-	
+
 	public Chromosome(List<Integer> genom) {
 		this.genom = genom;
 	}
-	
-	public int getLength() {
+
+    public List<Integer> getGenom() {
+        return genom;
+    }
+
+    public int getLength() {
 		return genom.size();
 	}
 
@@ -22,7 +25,6 @@ public class Chromosome {
 		return genom.get(index);
 	}
 	
-	/* TODO: test */
 	public void swapGenes(int g1, int g2) {
 		int buf = genom.get(g1);
 		genom.set(g1, genom.get(g2));
@@ -35,4 +37,8 @@ public class Chromosome {
 		}
 		return value;
 	}
+
+    public void setValue(Integer value) {
+        this.value = value;
+    }
 }

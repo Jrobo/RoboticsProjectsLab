@@ -1,7 +1,5 @@
 package core;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -20,21 +18,30 @@ public class CrossoverWheel {
 	
 	
 	public CrossoverWheel(List<Chromosome> data) {
-		int size = 0;
+        size = 0;
 		wheel = new TreeMap<Integer,Chromosome>();
 		for (Chromosome chromosome: data) {
 			size+=chromosome.getValue();
 			wheel.put(size,chromosome);
 		}	
-		size++;
 	}
-	
-	
-	/*TODO: test! */
+
+    public Map<Integer, Chromosome> getWheel() {
+        return wheel;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
 	public Chromosome getParent() {
-		int key = random.nextInt(size);
-		int index = Collections.binarySearch(new ArrayList<Integer>(wheel.keySet()), key,null);
-		return wheel.get(index);
+		int key = random.nextInt(size)+1;
+		for (Integer sector: wheel.keySet()) {
+            if (sector >= key) {
+                return wheel.get(sector);
+            }
+        }
+        return null;
 	}
 	
 }
