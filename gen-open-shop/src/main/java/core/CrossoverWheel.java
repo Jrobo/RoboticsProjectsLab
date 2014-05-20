@@ -21,7 +21,7 @@ public class CrossoverWheel {
 	
 	public CrossoverWheel(List<Chromosome> data) {
 		int size = 0;
-		wheel = new TreeMap<>();
+		wheel = new TreeMap<Integer,Chromosome>();
 		for (Chromosome chromosome: data) {
 			size+=chromosome.getValue();
 			wheel.put(size,chromosome);

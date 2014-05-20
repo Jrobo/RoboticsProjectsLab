@@ -1,5 +1,7 @@
 package core;
 
+import problem.ScheduleManager;
+
 import java.util.List;
 
 public class Chromosome {
@@ -29,17 +31,8 @@ public class Chromosome {
 	
 	public int getValue() {
 		if (value == null) {
-			value = ScheduleUtil.makespan(this); 
+			value = ScheduleManager.makespan(this);
 		}
 		return value;
 	}
-	
-	public int getHybridValue() {
-		if (hybridValue == null) {
-			value = ScheduleUtil.hybridMakespan(this);	
-		}
-		return hybridValue;
-		
-	}
-
 }

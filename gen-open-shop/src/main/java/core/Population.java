@@ -36,14 +36,14 @@ public class Population {
 	}
 
 	private List<Chromosome> generatePopulation(int size, int n) {
-		List<Chromosome> result = new ArrayList<>();
-		List<Integer> genes = new ArrayList<>();
+		List<Chromosome> result = new ArrayList<Chromosome>();
+		List<Integer> genes = new ArrayList<Integer>();
 		for (int i = 0; i < n; i++) {
 			genes.add(i);
 		}
 		for (int i = 0; i < size; i++) {
 			Collections.shuffle(genes);
-			result.add(new Chromosome(new ArrayList<>(genes)));
+			result.add(new Chromosome(new ArrayList<Integer>(genes)));
 		}
 		return result;
 	}
@@ -56,7 +56,7 @@ public class Population {
 
 	private List<Chromosome> uniformCrossover() {
 		CrossoverWheel wheel = new CrossoverWheel(individuals);
-		List<Chromosome> newPopulation = new ArrayList<>();
+		List<Chromosome> newPopulation = new ArrayList<Chromosome>();
 		for (int i = 0; i < size / 2; i++) {
 			newPopulation.addAll(crossover(wheel.getParent(),
 					wheel.getParent(), getMask(oneLength)));
@@ -78,15 +78,15 @@ public class Population {
 	}
 
 	private List<Chromosome> crossover(Chromosome p1, Chromosome p2, int mask) {
-		List<Chromosome> result = new ArrayList<>();
+		List<Chromosome> result = new ArrayList<Chromosome>();
 		if (p1.equals(p2)) {
 			result.add(p1);
 			result.add(p2);
 			return result;
 		}
 
-		List<Integer> c1 = new ArrayList<>();
-		List<Integer> c2 = new ArrayList<>();
+		List<Integer> c1 = new ArrayList<Integer>();
+		List<Integer> c2 = new ArrayList<Integer>();
 		for (int i = 0; i < p1.getLength(); i++) {
 			if (mask % 2 == 1) {
 				c1.add(p2.getGen(i));
