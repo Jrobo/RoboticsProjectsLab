@@ -23,9 +23,9 @@ public class JobTest {
     @Before
     public void init() {
         List<Integer> operations = Arrays.asList(1, 2, 3, 4, 5);
-        test1 = new Job(operations);
-        test2 = new Job(operations);
-        test3 = new Job(operations);
+        test1 = new Job(0,operations);
+        test2 = new Job(1,operations);
+        test3 = new Job(2,operations);
     }
 
     @Test

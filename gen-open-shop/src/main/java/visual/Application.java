@@ -6,7 +6,10 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,6 +24,7 @@ import javax.swing.table.TableModel;
 
 import problem.Problem;
 import problem.ScheduleManager;
+import core.Chromosome;
 import core.EvolutionManager;
 
 /**
@@ -37,6 +41,8 @@ public class Application extends JFrame {
 	private JButton left = new JButton("Prev");
 	private JButton right = new JButton("Next");
 
+	private JPanel sidePanel = new JPanel();
+
 	/*
 	 * Need to set Problem to Schedule Manager Need to set new population to
 	 * EvolutionManager
@@ -48,11 +54,45 @@ public class Application extends JFrame {
 
 		getContentPane().add(createSettingPanel(), BorderLayout.WEST);
 		getContentPane().add(createViewPanel(), BorderLayout.CENTER);
+		getContentPane().add(createSidePanel(), BorderLayout.EAST);
 
 		pack();
 		setVisible(true);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+	}
+
+	private JPanel createSidePanel() {
+		sidePanel = new JPanel();
+		sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+
+		return sidePanel;
+	}
+
+	static Map<JButton, Chromosome> map = new HashMap<>();
+
+	private void updateSidePanel() {
+		sidePanel.removeAll();
+		map.clear();
+		revalidate();
+		repaint();
+
+		for (Chromosome c : ViewManager.getAllChromosomes()) {
+			JButton btn = new JButton(c.getGenom().toString());
+			map.put(btn, c);
+			btn.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					ScheduleDialog dlg = new ScheduleDialog(map.get((JButton) e
+							.getSource()));
+					dlg.setVisible(true);
+				}
+			});
+			sidePanel.add(btn);
+
+		}
+
 	}
 
 	private JPanel createViewPanel() {
@@ -101,18 +141,20 @@ public class Application extends JFrame {
 
 				if (ViewManager.getIterationIndex() >= 0) {
 					SwingUtilities.invokeLater(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							String generation = "Generation "
 									+ ViewManager.getIterationIndex();
-							String step = ViewManager.getCurrent().getType().name();
-							navLabel.setText(generation + ": " + step);	
+							String step = ViewManager.getCurrent().getType()
+									.name();
+							navLabel.setText(generation + ": " + step);
 							img.setIcon(ViewManager.getView());
+							updateSidePanel();
 						}
 					});
 				}
-				
+
 			}
 		};
 
@@ -259,9 +301,9 @@ public class Application extends JFrame {
 					String step = ViewManager.getCurrent().getType().name();
 					navLabel.setText(generation + ": " + step);
 					img.setIcon(ViewManager.getView());
+					updateSidePanel();
 				}
-				
-				
+
 			}
 		});
 

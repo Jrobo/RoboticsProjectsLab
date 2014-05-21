@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 
@@ -14,6 +17,12 @@ import logger.SelectionStep;
 import logger.Step;
 import logger.StepLogger;
 import logger.Type;
+
+import org.javatuples.Pair;
+
+import problem.Schedule;
+import problem.ScheduleManager;
+import core.Chromosome;
 
 public class ViewManager {
 
@@ -29,6 +38,36 @@ public class ViewManager {
 
 	public static Step getCurrent() {
 		return current;
+	}
+	
+	public static List<Chromosome> getAllChromosomes() {
+		switch (current.getType()) {
+		case POPULATION:
+			return ((PopulationStep) current).getPopulation().getIndividuals();
+		case CROSSOVER:
+			List<Chromosome> list = new ArrayList<Chromosome>();
+			for (Pair<Chromosome, Chromosome> pair: ((CrossoverStep) current).getParents()) {
+				list.add(pair.getValue0());
+				list.add(pair.getValue1());
+			}
+			for (Pair<Chromosome, Chromosome> pair: ((CrossoverStep) current).getChilds()) {
+				list.add(pair.getValue0());
+				list.add(pair.getValue1());
+			}
+			return list;
+		case MUTATION:
+			List<Chromosome> list1 = new ArrayList<Chromosome>();
+			for (Pair<Chromosome, Integer> pair: ((MutationStep) current).getMutation()) {
+				list1.add(pair.getValue0());
+			}
+			return list1;
+		case SELECTION:
+			List<Chromosome> list2 = new ArrayList<Chromosome>();
+			list2.addAll(((SelectionStep) current).getPopulation().getIndividuals());
+			list2.addAll(((SelectionStep) current).getDeleted());
+			return list2;
+		}
+		return Collections.EMPTY_LIST;
 	}
 
 	public static void setIterationIndex(int iterationIndex) {
@@ -120,4 +159,21 @@ public class ViewManager {
 		g.dispose();
 		return new ImageIcon(img);
 	}
+	
+	public static ImageIcon getSchedule(Chromosome c) {
+		
+		Schedule schedule = ScheduleManager.getSchedule(c);
+
+		Image img = new BufferedImage(MAX_WIDTH, MAX_HEIGHT,
+				BufferedImage.TYPE_INT_RGB);
+		Graphics g = img.getGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
+
+		DrawUtil.drawSchedule(schedule, g);
+		
+		g.dispose();
+		return new ImageIcon(img);
+	}
+
 }
