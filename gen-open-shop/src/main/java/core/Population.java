@@ -3,8 +3,10 @@ package core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import logger.StepLogger;
 
@@ -43,6 +45,10 @@ public class Population implements Cloneable {
 
 	public double getMutaionProbability() {
 		return mutaionProbability;
+	}
+
+	public List<Chromosome> getIndividuals() {
+		return individuals;
 	}
 
 	public void setMutaionProbability(double mutaionProbability) {
@@ -101,6 +107,7 @@ public class Population implements Cloneable {
 		if (p1.equals(p2)) {
 			result.add(p1);
 			result.add(p2);
+			StepLogger.logCrossoverChilds(p1, p2);
 			return result;
 		}
 
@@ -115,6 +122,32 @@ public class Population implements Cloneable {
 				c2.add(p2.getGen(i));
 			}
 			mask /= 2;
+		}
+		Set<Integer> gens1 = new HashSet<Integer>();
+		Set<Integer> gens2 = new HashSet<Integer>();
+		for (int i = 0; i < p1.getLength(); i++) {
+			if (gens1.contains(c1.get(i))) {
+				int item = (c1.get(i) + 1) % p1.getLength();
+				while (gens1.contains(item)) {
+					item++;
+					item %= p1.getLength();
+				}
+				c1.set(i,item);
+				gens1.add(item);
+			} else {
+				gens1.add(c1.get(i));
+			}
+			if (gens2.contains(c1.get(i))) {
+				int item = (c2.get(i) + 1) % p1.getLength();
+				while (gens2.contains(item)) {
+					item++;
+					item %= p2.getLength();
+				}
+				c2.set(i,item);
+				gens2.add(item);
+			} else {
+				gens2.add(c2.get(i));
+			}
 		}
 		result.add(new Chromosome(c1));
 		result.add(new Chromosome(c2));

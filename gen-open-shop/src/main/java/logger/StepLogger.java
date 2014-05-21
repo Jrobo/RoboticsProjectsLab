@@ -16,8 +16,8 @@ public class StepLogger {
 		log = new ArrayList<Iteration>();
 		current = new Iteration();
 		log.add(current);
-		ViewManager.setIterationIndex(0);
-		ViewManager.setCurrent(current.getPopulation());
+		ViewManager.setIterationIndex(-1);
+		ViewManager.setCurrent(null);
 	}
 
 	public static void clear() {
@@ -29,6 +29,11 @@ public class StepLogger {
 	public static void next() {
 		current = new Iteration();
 		log.add(current);
+	}
+	
+	public static void stop() {
+		ViewManager.setIterationIndex(0);
+		ViewManager.setCurrent(log.get(0).getPopulation());
 	}
 
 	public static Iteration getIteration(int index) {

@@ -31,11 +31,11 @@ public class ScheduleManager {
 	}
 
 	public static int getOperationJob(int index) {
-		return index / problem.getNumberOfJobs();
+		return index / problem.getNumberOfMachines();
 	}
 
 	public static int getOperationMachine(int index) {
-		return index % problem.getNumberOfJobs();
+		return index % problem.getNumberOfMachines();
 	}
 
 	public static int getOperationLength(int machine, int job) {

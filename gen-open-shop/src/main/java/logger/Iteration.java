@@ -12,6 +12,7 @@ public class Iteration {
 	private SelectionStep selection;
 
 	public Iteration() {
+		mutation = new MutationStep();
 	}
 
 	public PopulationStep getPopulation() {

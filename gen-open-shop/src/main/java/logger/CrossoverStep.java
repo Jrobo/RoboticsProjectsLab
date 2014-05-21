@@ -16,9 +16,21 @@ public class CrossoverStep extends Step {
 
 	public CrossoverStep() {
 		parents = new ArrayList<Pair<Chromosome, Chromosome>>();
-		parents = new ArrayList<Pair<Chromosome, Chromosome>>();
+		childs = new ArrayList<Pair<Chromosome, Chromosome>>();
 		type = Type.CROSSOVER;
 
+	}
+
+	public List<Pair<Chromosome, Chromosome>> getParents() {
+		return parents;
+	}
+
+	public List<Pair<Chromosome, Chromosome>> getChilds() {
+		return childs;
+	}
+
+	public Chromosome getAlone() {
+		return alone;
 	}
 
 	public void addParents(Chromosome p1, Chromosome p2) {

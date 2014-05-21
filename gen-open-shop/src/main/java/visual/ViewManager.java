@@ -7,13 +7,17 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 
+import logger.CrossoverStep;
+import logger.MutationStep;
+import logger.PopulationStep;
+import logger.SelectionStep;
 import logger.Step;
 import logger.StepLogger;
 import logger.Type;
 
 public class ViewManager {
 
-	private static final int MAX_WIDTH = 500;
+	private static final int MAX_WIDTH = 800;
 	private static final int MAX_HEIGHT = 500;
 
 	private static int iterationIndex = -1;
@@ -64,13 +68,13 @@ public class ViewManager {
 			current = StepLogger.getIteration(iterationIndex).getCrossover();
 			break;
 		case SELECTION:
-			current = StepLogger.getIteration(++iterationIndex).getMutation();
+			current = StepLogger.getIteration(iterationIndex).getMutation();
 			break;
 		}
 	}
 
 	public static boolean isLast() {
-		if (iterationIndex < 0)
+		if (iterationIndex < 0 || current == null)
 			return true;
 		if (iterationIndex == StepLogger.getLogSize() - 1
 				&& current.getType().equals(Type.POPULATION))
@@ -79,7 +83,7 @@ public class ViewManager {
 	}
 
 	public static boolean isFirst() {
-		if (iterationIndex < 0)
+		if (iterationIndex < 0 || current == null)
 			return true;
 		if (iterationIndex == 0 && current.getType().equals(Type.POPULATION))
 			return true;
@@ -91,15 +95,29 @@ public class ViewManager {
 		Image img = new BufferedImage(MAX_WIDTH, MAX_HEIGHT,
 				BufferedImage.TYPE_INT_RGB);
 		Graphics g = img.getGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
 
 		if (iterationIndex < 0) {
-			g.setColor(Color.WHITE);
-			g.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
 			return new ImageIcon(img);
 		}
 
-		/* Draw!!! */
+		switch (current.getType()) {
+		case POPULATION:
+			DrawUtil.drawPopulation((PopulationStep) current,g);
+			break;
+		case CROSSOVER:
+			DrawUtil.drawCrossover((CrossoverStep) current, g);
+			break;
+		case MUTATION:
+			DrawUtil.drawMutation((MutationStep)current, g);
+			break;
+		case SELECTION:
+			DrawUtil.drawSelection((SelectionStep) current, g);
+			break;
+		}
 
+		g.dispose();
 		return new ImageIcon(img);
 	}
 }

@@ -19,8 +19,8 @@ public class Schedule {
         }
         for (int i = 0; i < problem.getNumberOfJobs(); i++) {
             List<Integer> job = new ArrayList<Integer>();
-            for (int j = 0; j < problem.getNumberOfMachines(); i++) {
-                job.add(problem.getOperation(j, i));
+            for (int j = 0; j < problem.getNumberOfMachines(); j++) {
+                job.add(problem.getOperation(i, j));
             }
             jobs.add(new Job(job));
         }

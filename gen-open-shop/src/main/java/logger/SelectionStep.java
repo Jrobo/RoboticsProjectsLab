@@ -11,6 +11,14 @@ public class SelectionStep extends Step {
 	Population population;
 	List<Chromosome> deleted;
 
+	public Population getPopulation() {
+		return population;
+	}
+
+	public List<Chromosome> getDeleted() {
+		return deleted;
+	}
+
 	public SelectionStep() {
 		deleted = new ArrayList<Chromosome>();
 		type = Type.SELECTION;
