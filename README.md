@@ -40,6 +40,6 @@ Each topic folder contains individual projects with detailed README files explai
 
 [Your Name]  
 Email: your.email@example.com  
-LinkedIn: https://linkedin.com/in/yourprofile  
+LinkedIn: [Click here ](https://www.linkedin.com/in/jamil-kazi-abdul-13b933174/)
 GitHub: https://github.com/Jrobo
 
