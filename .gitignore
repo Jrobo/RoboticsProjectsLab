@@ -1,1 +1,3 @@
-
+# ML model weights
+*.onnx
+*.pt
