@@ -39,7 +39,7 @@ Each topic folder contains individual projects with detailed README files explai
 ## Contact
 
 [Your Name]  
-Email: your.email@example.com  
+Email: kaziabduljamil2024@gmail.com
 LinkedIn: [Click here ](https://www.linkedin.com/in/jamil-kazi-abdul-13b933174/)
 GitHub: https://github.com/Jrobo
 
