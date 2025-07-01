@@ -1,3 +1,18 @@
-# ML model weights
+
+.DS_Store
+.DS_Store
 *.onnx
 *.pt
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Models (do NOT commit)
+*.onnx
+*.pt
+
+# IDE
+.vscode/
