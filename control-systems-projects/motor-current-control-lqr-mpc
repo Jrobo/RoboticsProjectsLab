@@ -1,0 +1,176 @@
+# Project: Current Control of a Synchronous Reluctance Motor
+
+## Overview
+
+This project focuses on designing controllers to regulate the currents in a synchronous reluctance motor. The electrical dynamics of the motor are modeled using a state-space representation and various control strategies are implemented and analyzed.
+
+---
+
+## System Model
+
+### State-Space Equations
+
+**Continuous-time:**
+
+\[
+\dot{x}(t) = A x(t) + B u(t)
+\]
+
+\[
+y(t) = C x(t) + D u(t)
+\]
+
+- **State vector** \( x(t) \): Motor currents  
+- **Input vector** \( u(t) \): Voltages on the direct (d) and quadrature (q) axes
+
+### System Parameters
+
+- Inductances:  
+  \( L_d = 0.05 \, H \),  
+  \( L_q = 0.011 \, H \)
+
+- Resistance:  
+  \( R_s = 0.62 \, \Omega \)
+
+- Electrical angular velocity:  
+  \( \omega_e = 785 \, \text{rad/s} \)
+
+- Sampling frequency:  
+  \( f_s = 8 \, \text{kHz} \)
+
+### System Matrices
+
+\[
+B = 
+\begin{bmatrix}
+\frac{1}{L_d} & 0 \\
+0 & \frac{1}{L_q}
+\end{bmatrix}, \quad
+C = 
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}, \quad
+D = 
+\begin{bmatrix}
+0 & 0 \\
+0 & 0
+\end{bmatrix}
+\]
+
+---
+
+## Control Objective
+
+Drive the motor currents to a desired reference:
+
+\[
+x_{ref} = 
+\begin{bmatrix}
+6.9 \, A \\
+8.9 \, A
+\end{bmatrix}
+\]
+
+---
+
+## Constraints
+
+- **Control Inputs (Voltages):**
+
+\[
+u_1, u_2 \in \left[ -\frac{V_{DC}}{3}, \frac{V_{DC}}{3} \right], \quad V_{DC} = 650 \, V
+\]
+
+- **States (Currents):**
+
+\[
+x_1, x_2 \in [-15, 15] \, A
+\]
+
+> 💡 *Tip: For faster simulations in MATLAB, set the display option to `off` in the `quadprog` function.*
+
+---
+
+## Exercises
+
+### 1. Stabilizing LQ Controller Design
+- Design a Linear Quadratic (LQ) controller in both continuous and discrete time.
+- Use `dlqr` for discrete-time design and `c2d` for conversion in MATLAB.
+
+### 2. MPC Controller Without Active Constraints
+- Implement an unconstrained Model Predictive Controller (MPC).
+- Compare performance with the LQR controller.
+
+### 3. MPC with Terminal Cost \( S = 0 \)
+- Study closed-loop behavior for different prediction horizons:
+  - Small: \( N = 2, 4 \)
+  - Large: \( N \geq 20 \)
+- Analyze impact on stability and performance.
+
+### 4. Adding Control Input Constraints
+- Apply voltage constraints in the MPC formulation.
+- Compare the performance with the LQR design.
+
+### 5. Adding State Constraints
+- Apply constraints on motor currents.
+- Evaluate behavior when input penalization is increased.
+
+### 6. Noise and Kalman Filter
+- Simulate with process and measurement noise.
+- Enhance performance using a Kalman filter integrated with MPC.
+
+### 7. Model Uncertainty and Velocity-Form MPC
+- Introduce model mismatch:
+  - \( L_d = 0.06 \, H \), \( L_q = 0.013 \, H \)
+- Implement velocity-form MPC to handle steady-state errors.
+
+---
+
+## Key Equations Summary
+
+- **Continuous State-Space:**
+  \[
+  \dot{x}(t) = A x(t) + B u(t)
+  \]
+
+- **Discrete Conversion:**
+  \[
+  x[k+1] = A_d x[k] + B_d u[k]
+  \]
+  Use `c2d` in MATLAB.
+
+- **Input Constraints:**
+  \[
+  |u_i| \leq \frac{650}{3} \, V
+  \]
+
+- **State Constraints:**
+  \[
+  |x_i| \leq 15 \, A
+  \]
+
+- **Tracking Reference:**
+  \[
+  x(t) \rightarrow 
+  \begin{bmatrix}
+  6.9 \\
+  8.9
+  \end{bmatrix}
+  \]
+
+---
+
+## Tools Used
+
+- MATLAB / Simulink
+- Quadprog optimization
+- LQR and MPC Design
+- Kalman Filtering
+
+---
+
+## License
+
+This project is for educational purposes and experimentation with advanced control methods in electric motor systems.
+
