@@ -1,0 +1,25 @@
+# Private data
+data/
+data_raw/
+datasets/
+videos/
+*.c3d
+*.trc
+*.bag
+*.mp4
+*.avi
+
+# Outputs
+results/
+logs/
+
+# Configs
+config.yaml
+*.env
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
