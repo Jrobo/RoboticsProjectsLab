@@ -1,0 +1,19 @@
+tbot3_nav_monitor:
+  ros__parameters:
+    odom_topic: "/odom"
+    scan_topic: "/scan"
+    cmd_vel_topic: "/cmd_vel"
+    log_directory: "logs"
+
+    battery_drain_per_meter: 2.0
+
+    obstacle_warning_distance: 0.35
+    complex_environment_threshold: 0.60
+
+    cmd_velocity_threshold: 0.02
+    actual_velocity_threshold: 0.01
+    stuck_distance_threshold: 0.005
+    stuck_time_threshold_sec: 5.0
+
+    safe_velocity_scale: 0.5
+    recovery_event_threshold: 3
