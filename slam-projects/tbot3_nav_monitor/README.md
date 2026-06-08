@@ -561,3 +561,4 @@ The monitor is designed to be environment-independent because it relies on stand
 The package is designed to monitor TurtleBot3 navigation without interfering with the default robot controller. The adaptive safe velocity output is published separately for safety-layer demonstration and future integration.
 
 The complete project source is available in this repository, and a backup zip package is also available when required for submission.
+VIDEO LINK:  https://drive.google.com/file/d/1qhAiwKzOyT-Fcng_YxUbQA-dnORsj9iZ/view?usp=sharing
