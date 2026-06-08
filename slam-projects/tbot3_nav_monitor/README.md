@@ -544,6 +544,17 @@ Future work includes:
 * More systematic comparison across multiple navigation environments
 
 ---
+## Current Testing Status and Multi-Environment Plan
+
+The current implementation was validated using the standard TurtleBot3 Gazebo world in headless mode and adaptive forced-risk conditions.
+
+The monitor is designed to be environment-independent because it relies on standard ROS2 topics:
+
+```bash
+/odom
+/scan
+/cmd_vel
+/goal_pose
 
 ## Notes
 
