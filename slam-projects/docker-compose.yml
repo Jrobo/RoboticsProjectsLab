@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  tbot3_nav_monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tbot3_nav_monitor:latest
+    container_name: tbot3_nav_monitor_container
+    network_mode: host
+    ipc: host
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - TURTLEBOT3_MODEL=burger
+      - ROS_DOMAIN_ID=0
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./logs:/root/tbot3_nav_monitor_ws/src/tbot3_nav_monitor/logs
+      - ./results:/root/tbot3_nav_monitor_ws/src/tbot3_nav_monitor/results
+    stdin_open: true
+    tty: true
+    command: /bin/bash
