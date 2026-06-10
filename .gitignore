@@ -17,3 +17,6 @@ __pycache__/
 
 # ROS / logs
 log/
+
+# macOS
+.DS_Store
