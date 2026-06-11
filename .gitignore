@@ -20,3 +20,5 @@ log/
 
 # macOS
 .DS_Store
+yolov8n.pt
+*.pt

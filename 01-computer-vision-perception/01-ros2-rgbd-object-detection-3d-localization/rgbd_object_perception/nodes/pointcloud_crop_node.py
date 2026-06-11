@@ -1,4 +1,8 @@
+import time
+from pathlib import Path
+
 import cv2
+import open3d as o3d
 import rclpy
 from rclpy.node import Node
 
@@ -7,23 +11,24 @@ from cv_bridge import CvBridge
 
 from rgbd_object_perception.core.detector import YoloDetector
 from rgbd_object_perception.core.depth_to_3d import get_median_depth, pixel_to_3d
+from rgbd_object_perception.core.pointcloud_utils import (
+    bbox_depth_to_pointcloud,
+    voxel_downsample_pointcloud,
+)
 from rgbd_object_perception.utils.drawing import draw_detections
 
 
-class RGBDLocalizationNode(Node):
+class PointCloudCropNode(Node):
     def __init__(self):
-        super().__init__("rgbd_localization_node")
+        super().__init__("pointcloud_crop_node")
 
         self.bridge = CvBridge()
 
-        # =====================================================
-        # ROS2 parameters
-        # These allow changing settings from terminal/launch file
-        # without editing the Python code.
-        # =====================================================
         self.declare_parameter("model_name", "yolov8n.pt")
-        self.declare_parameter("confidence_threshold", 0.35)
-        self.declare_parameter("object_filter", "")
+        self.declare_parameter("confidence_threshold", 0.45)
+        self.declare_parameter("object_filter", "cell phone")
+        self.declare_parameter("save_once", True)
+        self.declare_parameter("voxel_size", 0.005)
 
         self.model_name = self.get_parameter("model_name").value
         self.confidence_threshold = float(
@@ -32,39 +37,18 @@ class RGBDLocalizationNode(Node):
         self.object_filter = (
             self.get_parameter("object_filter").value.strip().lower()
         )
+        self.save_once = bool(self.get_parameter("save_once").value)
+        self.voxel_size = float(self.get_parameter("voxel_size").value)
 
-        # =====================================================
-        # YOLO detector
-        # =====================================================
         self.detector = YoloDetector(
             model_name=self.model_name,
-            confidence_threshold=self.confidence_threshold
+            confidence_threshold=self.confidence_threshold,
         )
 
-        self.get_logger().info(f"YOLO model: {self.model_name}")
-        self.get_logger().info(
-            f"Confidence threshold: {self.confidence_threshold}"
-        )
-
-        if self.object_filter:
-            self.get_logger().info(
-                f"Object filter enabled: {self.object_filter}"
-            )
-        else:
-            self.get_logger().info(
-                "Object filter disabled. Showing all detections."
-            )
-
-        # =====================================================
-        # RealSense ROS2 topics
-        # =====================================================
         self.rgb_topic = "/camera/camera/color/image_raw"
         self.depth_topic = "/camera/camera/aligned_depth_to_color/image_raw"
         self.camera_info_topic = "/camera/camera/color/camera_info"
 
-        # =====================================================
-        # Depth image and camera intrinsic parameters
-        # =====================================================
         self.latest_depth = None
 
         self.fx = None
@@ -72,74 +56,58 @@ class RGBDLocalizationNode(Node):
         self.cx = None
         self.cy = None
 
-        # =====================================================
-        # Subscribers
-        # =====================================================
+        self.saved = False
+
+        self.output_dir = (
+            Path.home()
+            / "ros2_perception_ws"
+            / "src"
+            / "rgbd_object_perception"
+            / "results"
+            / "pointclouds"
+        )
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
         self.rgb_sub = self.create_subscription(
             Image,
             self.rgb_topic,
             self.rgb_callback,
-            10
+            10,
         )
 
         self.depth_sub = self.create_subscription(
             Image,
             self.depth_topic,
             self.depth_callback,
-            10
+            10,
         )
 
         self.camera_info_sub = self.create_subscription(
             CameraInfo,
             self.camera_info_topic,
             self.camera_info_callback,
-            10
+            10,
         )
 
-        self.get_logger().info("RGB-D localization node started.")
-        self.get_logger().info(f"RGB topic: {self.rgb_topic}")
-        self.get_logger().info(f"Depth topic: {self.depth_topic}")
-        self.get_logger().info(
-            f"Camera info topic: {self.camera_info_topic}"
-        )
+        self.get_logger().info("Point cloud crop node started.")
+        self.get_logger().info(f"Object filter: {self.object_filter}")
+        self.get_logger().info(f"Confidence threshold: {self.confidence_threshold}")
+        self.get_logger().info(f"Voxel size: {self.voxel_size}")
+        self.get_logger().info(f"Point clouds will be saved to: {self.output_dir}")
 
     def camera_info_callback(self, msg):
-        """
-        Read camera intrinsics from CameraInfo message.
-
-        Camera matrix K:
-            [fx  0 cx]
-            [ 0 fy cy]
-            [ 0  0  1]
-        """
-
         self.fx = msg.k[0]
         self.fy = msg.k[4]
         self.cx = msg.k[2]
         self.cy = msg.k[5]
 
     def depth_callback(self, msg):
-        """
-        Store latest aligned depth image.
-        RealSense aligned depth is matched to RGB image pixels.
-        """
-
         self.latest_depth = self.bridge.imgmsg_to_cv2(
             msg,
-            desired_encoding="passthrough"
+            desired_encoding="passthrough",
         )
 
     def rgb_callback(self, msg):
-        """
-        Main callback:
-        1. Read RGB image
-        2. Detect objects using YOLO
-        3. Optionally filter object class
-        4. Read depth at bounding-box center
-        5. Convert pixel + depth to 3D X, Y, Z
-        6. Visualize result
-        """
-
         if self.latest_depth is None:
             self.get_logger().warn("Waiting for aligned depth image...")
             return
@@ -150,13 +118,11 @@ class RGBDLocalizationNode(Node):
 
         image_bgr = self.bridge.imgmsg_to_cv2(
             msg,
-            desired_encoding="bgr8"
+            desired_encoding="bgr8",
         )
 
-        # Run YOLO detection
         detections = self.detector.detect(image_bgr)
 
-        # Optional object filter using ROS2 parameter
         if self.object_filter:
             detections = [
                 det for det in detections
@@ -165,25 +131,21 @@ class RGBDLocalizationNode(Node):
 
         for det in detections:
             x1, y1, x2, y2 = det["bbox"]
-
-            # Bounding-box center pixel
             u = int((x1 + x2) / 2)
             v = int((y1 + y2) / 2)
 
-            # Robust median depth around object center
             depth_m = get_median_depth(
                 self.latest_depth,
                 u,
                 v,
                 window_size=9,
-                depth_scale=0.001
+                depth_scale=0.001,
             )
 
-            if depth_m is None or depth_m <= 0.0:
+            if depth_m is None:
                 det["position_3d"] = None
                 continue
 
-            # Convert pixel coordinate to 3D camera coordinate
             x, y, z = pixel_to_3d(
                 u,
                 v,
@@ -191,31 +153,65 @@ class RGBDLocalizationNode(Node):
                 self.fx,
                 self.fy,
                 self.cx,
-                self.cy
+                self.cy,
             )
 
             det["position_3d"] = (x, y, z)
 
-            self.get_logger().info(
-                f'{det["class_name"]}: '
-                f'conf={det["confidence"]:.2f}, '
-                f'pixel=({u},{v}), '
-                f'depth={depth_m:.3f}m, '
-                f'X={x:.3f}m, '
-                f'Y={y:.3f}m, '
-                f'Z={z:.3f}m'
-            )
+            if not self.saved or not self.save_once:
+                pcd = bbox_depth_to_pointcloud(
+                    image_bgr,
+                    self.latest_depth,
+                    det["bbox"],
+                    self.fx,
+                    self.fy,
+                    self.cx,
+                    self.cy,
+                    depth_scale=0.001,
+                    stride=2,
+                    max_depth_m=2.0,
+                )
+
+                pcd = voxel_downsample_pointcloud(
+                    pcd,
+                    voxel_size=self.voxel_size,
+                )
+
+                if len(pcd.points) > 0:
+                    timestamp = time.strftime("%Y%m%d_%H%M%S")
+                    safe_name = det["class_name"].lower().replace(" ", "_")
+
+                    ply_path = self.output_dir / f"{safe_name}_crop_{timestamp}.ply"
+
+                    o3d.io.write_point_cloud(str(ply_path), pcd)
+
+                    self.get_logger().info(
+                        f"Saved object point cloud: {ply_path} "
+                        f"with {len(pcd.points)} points"
+                    )
+
+                    self.saved = True
 
         output = draw_detections(image_bgr, detections)
 
-        cv2.imshow("RGB-D Object Localization", output)
+        cv2.putText(
+            output,
+            "Point Cloud Crop Node | Press Ctrl+C to stop",
+            (20, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.65,
+            (0, 255, 255),
+            2,
+        )
+
+        cv2.imshow("YOLO RGB-D Point Cloud Crop", output)
         cv2.waitKey(1)
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    node = RGBDLocalizationNode()
+    node = PointCloudCropNode()
 
     try:
         rclpy.spin(node)
