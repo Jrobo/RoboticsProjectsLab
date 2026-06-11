@@ -22,6 +22,8 @@ setup(
         'console_scripts': [
             'image_yolo_node = rgbd_object_perception.nodes.image_yolo_node:main',
 	    'gif_recorder_node = rgbd_object_perception.nodes.gif_recorder_node:main',  
+           'rgbd_localization_node = rgbd_object_perception.nodes.rgbd_localization_node:main',
+           'rgbd_localization_gif_recorder_node = rgbd_object_perception.nodes.rgbd_localization_gif_recorder_node:main',	   
         ],
     },
 )

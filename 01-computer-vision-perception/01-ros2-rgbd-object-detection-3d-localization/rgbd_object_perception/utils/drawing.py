@@ -6,7 +6,12 @@ def draw_detections(image, detections):
 
     for det in detections:
         x1, y1, x2, y2 = det["bbox"]
+
         label = f'{det["class_name"]}: {det["confidence"]:.2f}'
+
+        if "position_3d" in det and det["position_3d"] is not None:
+            x, y, z = det["position_3d"]
+            label += f" | X:{x:.2f} Y:{y:.2f} Z:{z:.2f}m"
 
         cv2.rectangle(output, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
@@ -19,5 +24,10 @@ def draw_detections(image, detections):
             (0, 255, 0),
             2
         )
+
+        # Draw bounding-box center
+        u = int((x1 + x2) / 2)
+        v = int((y1 + y2) / 2)
+        cv2.circle(output, (u, v), 4, (0, 0, 255), -1)
 
     return output
