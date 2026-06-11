@@ -1,0 +1,50 @@
+name: ROS2 RGB-D Perception CI
+
+on:
+  push:
+    paths:
+      - "01-computer-vision-perception/01-ros2-rgbd-object-detection-3d-localization/**"
+      - ".github/workflows/ros2_rgbd_perception_ci.yml"
+  pull_request:
+    paths:
+      - "01-computer-vision-perception/01-ros2-rgbd-object-detection-3d-localization/**"
+      - ".github/workflows/ros2_rgbd_perception_ci.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up ROS2 Humble
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: humble
+
+      - name: Install ROS2 dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            python3-pip \
+            python3-colcon-common-extensions \
+            ros-humble-cv-bridge \
+            ros-humble-sensor-msgs \
+            ros-humble-geometry-msgs \
+            ros-humble-visualization-msgs
+
+      - name: Install Python dependencies
+        run: |
+          pip3 install ultralytics open3d numpy opencv-python
+
+      - name: Create ROS2 workspace
+        run: |
+          mkdir -p ~/ros2_ci_ws/src
+          cp -r 01-computer-vision-perception/01-ros2-rgbd-object-detection-3d-localization ~/ros2_ci_ws/src/rgbd_object_perception
+
+      - name: Build ROS2 package
+        run: |
+          source /opt/ros/humble/setup.bash
+          cd ~/ros2_ci_ws
+          colcon build --packages-select rgbd_object_perception
