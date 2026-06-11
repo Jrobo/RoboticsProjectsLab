@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'image_yolo_node = rgbd_object_perception.nodes.image_yolo_node:main',
+	    'gif_recorder_node = rgbd_object_perception.nodes.gif_recorder_node:main',  
         ],
     },
 )
